@@ -1,4 +1,5 @@
 import header
+import numpy as np
 import tensorflow as tf
 from tensorflow.contrib.learn.python.learn.datasets.mnist import read_data_sets
 
@@ -23,7 +24,8 @@ def model(path, epoch_n, batch_size):
     init = tf.global_variables_initializer()
     
     test_feed = {x: mnist.test.images, y_: mnist.test.labels}
-    
+    metrics = np.zeros(epoch_n)
+
     with tf.Session() as sess:
         sess.run(init)
         for epoch in range(epoch_n):
@@ -33,10 +35,11 @@ def model(path, epoch_n, batch_size):
 
             correct = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
             accuracy = tf.reduce_mean(tf.cast(correct, tf.float32))
-            
-            metric = sess.run(accuracy, feed_dict=test_feed)
-            header.train_message(epoch, metric)
+                   
+            metrics[epoch] = sess.run(accuracy, feed_dict=test_feed)
+            header.train_message(epoch, metrics[epoch])
 
+    header.max_message(metrics)
 
 if __name__ == '__main__':
 
